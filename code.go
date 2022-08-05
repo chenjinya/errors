@@ -19,7 +19,7 @@ var (
 
 	// data error
 	DbError        = NewErrorCode(1100, http.StatusInternalServerError, "数据库发生意外")
-	DuplicateError = NewErrorCode(1101, http.StatusInternalServerError, "数据主键重复")
+	DuplicateError = NewErrorCode(1101, http.StatusBadRequest, "数据主键重复")
 
 	// network error
 	RpcError = NewErrorCode(1200, http.StatusInternalServerError, "远程调用发生意外")

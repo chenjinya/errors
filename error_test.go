@@ -2,11 +2,18 @@ package errors
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestStackTrace(t *testing.T) {
+	err := ParamError.New("param error", DbError.New("db error", errors.New("base error")))
+	assert.Equal(t, err.Error(), "error(param error), wrap(db error->base error)")
+	assert.Equal(t, fmt.Sprintf("%s", err), "param error->db error->base error")
+}
 
 func TestErrCode_New(t *testing.T) {
 	dbErr := DbError.Newf("there is an db error %s", "duplicate insert", errors.New("data duplicated"))

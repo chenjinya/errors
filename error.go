@@ -69,6 +69,9 @@ func (e *BaseError) errors() string {
 	es := []string{e.message}
 	cause := e.err
 	for {
+		if cause == nil {
+			break
+		}
 		be, ok := cause.(*BaseError)
 		if !ok {
 			es = append(es, cause.Error())

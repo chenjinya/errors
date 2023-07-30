@@ -33,7 +33,7 @@ func (e BaseError) MarshalJSON() (b []byte, err error) {
 }
 
 func (e BaseError) Error() string {
-	return fmt.Sprintf("error(%s), wrap(%s)", e.message, e.err)
+	return e.message
 }
 
 func (e BaseError) Code() ErrCode {

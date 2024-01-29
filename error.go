@@ -21,6 +21,7 @@ type BaseError struct {
 	message    string
 	err        error
 	stack      []uintptr
+	fields     map[string]interface{}
 }
 
 func (e BaseError) MarshalJSON() (b []byte, err error) {
@@ -30,6 +31,18 @@ func (e BaseError) MarshalJSON() (b []byte, err error) {
 		"message":     e.Message(),
 		"error":       e.Error(),
 	})
+}
+
+func (e BaseError) WithField(key string, value interface{}) *BaseError {
+	if e.fields == nil {
+		e.fields = make(map[string]interface{})
+	}
+	e.fields[key] = value
+	return &e
+}
+
+func (e BaseError) Fields() map[string]interface{} {
+	return e.fields
 }
 
 func (e BaseError) Error() string {
@@ -52,7 +65,7 @@ func (e BaseError) Unwrap() error {
 	return e.err
 }
 
-func (e *BaseError) Format(st fmt.State, verb rune) {
+func (e BaseError) Format(st fmt.State, verb rune) {
 	switch verb {
 	case 'v':
 		fmt.Fprintf(st, "%s", e.Message())
@@ -65,7 +78,7 @@ func (e *BaseError) Format(st fmt.State, verb rune) {
 	}
 }
 
-func (e *BaseError) errors() string {
+func (e BaseError) errors() string {
 	es := []string{e.message}
 	cause := e.err
 	for {

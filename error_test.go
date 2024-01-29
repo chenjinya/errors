@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -11,8 +12,19 @@ import (
 
 func TestStackTrace(t *testing.T) {
 	err := ParamError.New("param error", DbError.New("db error", errors.New("base error")))
-	assert.Equal(t, err.Error(), "error(param error), wrap(db error->base error)")
+	assert.Equal(t, err.Error(), "param error")
 	assert.Equal(t, fmt.Sprintf("%s", err), "param error->db error->base error")
+}
+
+func TestWithField(t *testing.T) {
+	err := ParamError.New("param error", DbError.New("db error", errors.New("base error"))).WithField("dbname", "user")
+	assert.Equal(t, err.Error(), "param error")
+	assert.Equal(t, fmt.Sprintf("%s", err), "param error->db error->base error")
+	ms, me := json.Marshal(err.Fields())
+	if me != nil {
+		panic(me)
+	}
+	assert.Equal(t, string(ms), `{"dbname":"user"}`)
 }
 
 func TestErrCode_New(t *testing.T) {
@@ -23,7 +35,7 @@ func TestErrCode_New(t *testing.T) {
 	assert.Equal(t, dbErr.message, dbErr.Message())
 	assert.Equal(t, dbErr.message, "there is an db error duplicate insert")
 	assert.Equal(t, dbErr.err, dbErr.Unwrap())
-	assert.Equal(t, dbErr.Error(), "error(there is an db error duplicate insert), wrap(data duplicated)")
+	assert.Equal(t, dbErr.Error(), "there is an db error duplicate insert")
 
 	assert.Panics(t,
 		func() {
